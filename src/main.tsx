@@ -1,0 +1,11 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Layout } from './components/Layout';
+import { Overview } from './pages/Overview';
+import { Candidates } from './pages/Candidates';
+import { CandidateDetail } from './pages/CandidateDetail';
+import { Adaptation } from './pages/Adaptation';
+import { Placeholder } from './pages/Placeholder';
+import './styles.css';
+ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><BrowserRouter><Routes><Route element={<Layout/>}><Route index element={<Overview/>}/><Route path="vacancies" element={<Placeholder title="Вакансии"/>}/><Route path="candidates" element={<Candidates/>}/><Route path="candidates/:id" element={<CandidateDetail/>}/><Route path="adaptation" element={<Adaptation/>}/><Route path="analytics" element={<Placeholder title="Аналитика"/>}/><Route path="settings" element={<Placeholder title="Настройки"/>}/><Route path="*" element={<Placeholder title="Страница не найдена"/>}/></Route></Routes></BrowserRouter></React.StrictMode>);

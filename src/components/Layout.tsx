@@ -1,0 +1,3 @@
+import { NavLink, Outlet } from 'react-router-dom';
+const links = [{label:'Обзор',to:'/'},{label:'Вакансии',to:'/vacancies'},{label:'Кандидаты',to:'/candidates'},{label:'Адаптация',to:'/adaptation'},{label:'Аналитика',to:'/analytics'},{label:'Настройки',to:'/settings'}];
+export function Layout(){return <div className="app"><aside className="sidebar"><NavLink className="brand" to="/">HR·Ассистент</NavLink><nav aria-label="Основная навигация">{links.map(link=><NavLink key={link.to} to={link.to} end={link.to==='/'} className={({isActive})=>`nav-link ${isActive?'active':''}`}>{link.label}</NavLink>)}</nav></aside><main className="content"><Outlet/></main></div>}
