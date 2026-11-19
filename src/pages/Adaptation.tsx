@@ -1,4 +1,44 @@
 import { useState } from 'react';
-import { stages } from '../data/mock';
-import { Badge, Button, PageHeader, Panel } from '../components/UI';
-export function Adaptation(){const [done,setDone]=useState<string[]>([]);const [approved,setApproved]=useState(false);const [notice,setNotice]=useState('');const total=stages.reduce((n,s)=>n+s.tasks.length,0);return <><PageHeader title="План адаптации: Илья Громов" subtitle="Backend-разработчик · выход 26.10.2026 · сгенерирован за 18 сек" actions={<><Button secondary onClick={()=>{setDone([]);setApproved(false);setNotice('Демо-план сброшен к исходному состоянию.')}}>Пересоздать</Button><Button onClick={()=>{setApproved(true);setNotice('План утверждён локально (демо).')}}>{approved?'План утверждён':'Утвердить план'}</Button></>}/>{notice&&<div className="notice" role="status">{notice}<button onClick={()=>setNotice('')}>×</button></div>}<Panel className="overall-progress"><div className="progress-label"><span>Выполнено {done.length} из {total} задач</span><span>День 1</span></div><div className="progress"><div style={{width:`${100*done.length/total}%`}}/></div></Panel><div className="three-cols">{stages.map((stage,i)=><Panel key={stage.label} className="stage"><Badge>{stage.label}</Badge><h2>{stage.title}</h2>{stage.tasks.map((task,j)=>{const key=`${i}-${j}`;return <label key={key} className={`task ${done.includes(key)?'completed':''}`}><input type="checkbox" checked={done.includes(key)} onChange={()=>setDone(current=>current.includes(key)?current.filter(x=>x!==key):[...current,key])}/><span>{task}</span></label>})}</Panel>)}</div></>}
+import { adaptationStages } from '../data/fixtures';
+import { useAppStore } from '../state/AppStore';
+import { Badge, Button, DemoNote, Notice, PageHeader, Panel, Progress } from '../components/UI';
+
+export function Adaptation() {
+  const { data, toggleAdaptationTask, approveAdaptation, resetAdaptation } = useAppStore();
+  const [message, setMessage] = useState('');
+  const count = adaptationStages.reduce((sum, stage) => sum + stage.tasks.length, 0);
+  const done = data.completedTaskIds.length;
+  const reset = () => {
+    if (done && !window.confirm('Сбросить все отмеченные задачи и утверждение плана?')) return;
+    resetAdaptation();
+    setMessage('Демонстрационный план сброшен.');
+  };
+
+  return <>
+    <PageHeader title="План адаптации: Илья Громов"
+      subtitle="Backend-разработчик · выход 26.10.2026 · план на 90 дней"
+      actions={<>
+        <Button variant="secondary" onClick={reset}>Пересоздать</Button>
+        <Button disabled={data.adaptationApproved} onClick={() => {approveAdaptation(); setMessage('План утверждён локально.');}}>
+          {data.adaptationApproved ? 'План утверждён ✓' : 'Утвердить план'}
+        </Button>
+      </>} />
+    <DemoNote />
+    {message && <Notice message={message} onClose={() => setMessage('')} />}
+    <Panel className="overall-progress">
+      <div className="progress-label"><span>Выполнено {done} из {count} задач</span><span>День 1</span></div>
+      <Progress value={count ? done / count * 100 : 0} label="Прогресс адаптации" />
+    </Panel>
+    <div className="three-cols">
+      {adaptationStages.map(stage => <Panel key={stage.id} className="stage">
+        <Badge>{stage.label}</Badge><h2>{stage.title}</h2>
+        {stage.tasks.map(task => <label key={task.id}
+          className={`task ${data.completedTaskIds.includes(task.id) ? 'completed' : ''}`}>
+          <input type="checkbox" checked={data.completedTaskIds.includes(task.id)}
+            onChange={() => toggleAdaptationTask(task.id)} />
+          <span>{task.text}</span>
+        </label>)}
+      </Panel>)}
+    </div>
+  </>;
+}
